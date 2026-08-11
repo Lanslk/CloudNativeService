@@ -1,0 +1,62 @@
+<!-- header.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="css/mystyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<div class="header">
+    <div class="header__content-text">
+        <div class="logo-container">
+            <img class="logo" id="logo" src="picture/logo.png">
+        </div>
+        <div class="title-button-container">
+            <div class="title-container">
+                <h1>Lan's Car Rental</h1>
+            </div>
+            <div class="button-container" id="buttonContainer">
+                <div id="categoryButton" class="button">Category
+                    <span id="categorySection" class="section">
+                        <div id="categoryList" class="sectionArea">
+                            <!-- Categories will be dynamically inserted here -->
+                        </div>
+                    </span>
+                </div>
+                <div id="brandButton" class="button">Brand
+                    <span id="brandSection" class="section">
+                        <div id="brandList" class="sectionArea">
+                            <!-- Brands will be dynamically inserted here -->
+                        </div>
+                    </span>
+                </div>
+                <div id="searchSection" class="searchSection">
+                    <input id="searchInput" class="searchInput" type="search" placeholder="Search products" size="80">
+                    <div id="suggestions" class="suggestions"></div>
+                    
+                    <button id="searchButton" class="searchButton" type="submit">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+/* global $ */
+$(document).ready(function() {
+    // Hide category, brand, and search on reservation.php
+    if (window.location.pathname.includes('reservation.php')) {
+        $('#buttonContainer').hide();
+    }
+    
+    $('.logo').on('click', function() {
+        window.location.href = 'index.php';
+    });
+    
+    
+});
+</script>
+</body>
+</html>

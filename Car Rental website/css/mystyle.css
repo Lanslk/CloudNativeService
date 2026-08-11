@@ -1,0 +1,390 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 130px;
+    z-index: 10;
+    background: #eeeeee;
+    -webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);
+    -moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);
+}
+.header__content-text {
+    text-align: center;
+    padding: 15px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1200px
+}
+.logo-container {
+    flex: 0 0 100px; /* Fixed width for the logo container */
+    display: flex;
+    align-items: center;
+}
+.logo-container img {
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
+}
+.title-button-container {
+    flex: 1; /* Flex-grow to take up the remaining space */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.title-container h1 {
+    margin: 0;
+}
+.button-container {
+    display: flex;
+    gap: 10px;
+    position: fixed;
+    top: 6%;
+    height: 70px;
+}
+.button {
+    float: left;
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+.button:hover {
+    background-color: #e0e0e0;
+}
+/* Popup container - can be anything you want */
+.button {
+  position: relative;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+}
+.button .section {
+    display: none;
+    margin-top: 10px;
+    width: 130px;
+    background-color: #fff;
+    color: #555;
+    text-align: center;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+    left: 85%;
+    margin-left: -80px;
+}
+.section .sectionArea {
+    padding: 10px;
+    border-style: solid;
+    border-radius: 6px;
+}
+.section .sectionArea .list-item {
+    padding: 5px;
+}
+.section .sectionArea .list-item:hover {
+    background-color: #e1e9e1;
+}
+.searchSection {
+    padding:20px 20px;
+}
+.searchInput {
+    border-radius: 6px;
+    padding: 6px;
+    margin-top: 8px;
+    font-size: 17px;
+    border: none;
+}
+.searchButton {
+    float: right;
+    padding: 6px 10px;
+    margin-top: 8px;
+    margin-right: 16px;
+    background: #ddd;
+    font-size: 17px;
+    border: none;
+    cursor: pointer;
+}
+.searchButton:hover {
+  background: #ccc;
+}
+.suggestions {
+    position: absolute;
+    top: 100%;
+    width: 150px;
+    left: 40;
+    border: 1px solid #ccc;
+    background: #fff;
+    z-index: 1000;
+    align-items: center;
+    border-radius: 6px;
+    display: none;
+}
+.suggestions div {
+    padding: 3px;
+    width: 150px;
+    cursor: pointer;
+}
+.suggestions span {
+    padding: 3px;
+    width: 150px;
+    color: grey;
+    font-size: 12px;
+}
+.suggestions div:hover {
+    background: #f0f0f0;
+}
+
+.page__content-container {
+    margin: 130px auto;
+    width: 1000px;
+    padding: 30px;
+}
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 items per row */
+    gap: 20px;
+}
+.product-card {
+    border: 1px solid #ccc;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+}
+.product-image-container {
+    width: 300px;
+    height: 200px;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+    
+.product-image {
+    cursor: pointer;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+.product-details {
+    margin-bottom: 10px; /* Add some space between details and availability */
+}
+.product-title {
+    font-size: 1.2em;
+    margin: 0.5em 0;
+}
+.product-available {
+    font-size: 1.2em;
+    margin: 0.5em 0;
+    color: green;
+}
+.product-unavailable {
+    font-size: 1.2em;
+    margin: 0.5em 0;
+    color: #e74c3c;
+}
+
+/* Pop-up container */
+.popup-container {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+}
+
+.popup-content {
+    background-color: white;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 10px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.close-popup {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-popup:hover,
+.close-popup:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+.detail-card {
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+.detail-image {
+    width: 600px;
+    height: auto;
+}
+.availability-button-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Optional: distribute space evenly */
+}
+.buy-button {
+    margin-left: 10px; /* Adjust spacing as needed */
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.rent:hover {
+    background-color: #45a049;
+}
+
+/* Floating Button */
+.cart-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #f39c12;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 50px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+}
+
+.cart-button .fa-shopping-cart {
+    font-size: 24px;
+}
+
+#cartCount {
+    margin-left: 10px;
+    background-color: red;
+    border-radius: 50%;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.backToMenu-button {
+    position: fixed;
+    bottom: 20px;
+    right: 165px;
+    background-color: #f39c12;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 50px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+}
+
+.placeOrder-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #f39c12;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 50px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+}
+.confirm-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #f39c12;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 50px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    font-size: 18px;
+}
+.reservation-product-card {
+    display: flex;
+    margin-bottom: 20px;
+}
+.reservation-product-image-container {
+    flex: 0 0 auto;
+    margin-right: 20px; /* Adjust spacing between image and details */
+}
+
+.reservation-product-image {
+    width: 350px; /* Adjust image width as needed */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.product-details-container {
+    flex: 1 1 auto;
+}
+
+.user-input-container {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.user-input-container input[type="number"] {
+    width: 50px;
+    padding: 5px;
+    margin-right: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.user-input-container input[type="date"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.user-input-container .subtotal {
+    margin-top: 10px;
+}
+
+.user-input-container .remove-button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #ff6347;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.user-input-container .remove-button:hover {
+    background-color: #e74c3c;
+}
