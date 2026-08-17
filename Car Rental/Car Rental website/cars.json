@@ -9,7 +9,7 @@
         "Mileage": 10000,
         "Fuel_Type": "petrol",
         "Seats": 5,
-        "Quantity": 0,
+        "Quantity": 2,
         "Price": "120",
         "Description": "Comfortable family sedan"
     },
@@ -23,7 +23,7 @@
         "Mileage": 25000,
         "Fuel_Type": "diesel",
         "Seats": 5,
-        "Quantity": 0,
+        "Quantity": 1,
         "Price": "150",
         "Description": "Spacious SUV with great mileage"
     },
@@ -37,7 +37,7 @@
         "Mileage": 30000,
         "Fuel_Type": "petrol",
         "Seats": 5,
-        "Quantity": 0,
+        "Quantity": 2,
         "Price": "80",
         "Description": "Compact and efficient"
     },
