@@ -12,11 +12,11 @@
         <tr align="center">
             <td colspan="2">
                 <h3>FIRST NAME<font color="red"> *</font></h3>
-                <input class="details" name="first_name" id="firstName" type="text" length="30" size="30">
+                <input class="details" name="firstName" id="firstName" type="text" length="30" size="30">
             </td>
             <td colspan="2">
                 <h3>LAST NAME<font color="red"> *</font></h3>
-                <input class="details" name="last_name" id="lastName" type="text" length="30" size="30">
+                <input class="details" name="lastName" id="lastName" type="text" length="30" size="30">
             </td>
         </tr>
         <tr align="center">
@@ -26,7 +26,7 @@
             </td>
             <td colspan="2">
                 <h3>PHEONE NO<font color="red"> *</font></h3>
-                <input class="details" name="phone_no" id="phoneNo" type="text" length="30" size="30">
+                <input class="details" name="phone" id="phoneNo" type="text" length="30" size="30">
             </td>
         </tr>
         <tr align="center">

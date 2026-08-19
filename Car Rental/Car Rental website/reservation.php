@@ -7,7 +7,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script type="text/javascript" src="js/reservation.js"></script>
 <body>
-<?php include 'header.html'; ?>
+<?php include 'includes/header.html'; ?>
 <div class="page__content-container">
     <!-- Reservation content goes here -->
     <h2>Your Reservation</h2>

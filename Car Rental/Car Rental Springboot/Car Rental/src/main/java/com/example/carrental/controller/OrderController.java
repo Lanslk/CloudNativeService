@@ -1,5 +1,6 @@
 package com.example.carrental.controller;
 
+import com.example.carrental.dto.CreateOrderRequest;
 import com.example.carrental.entity.Order;
 import com.example.carrental.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin(origins = "*") // 允許 PHP 前端跨網域存取 (CORS)
+@CrossOrigin(
+        origins = "*",
+        allowedHeaders = "*",
+        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.DELETE, RequestMethod.OPTIONS}
+) // 允許 PHP 前端跨網域存取 (CORS)
 public class OrderController {
 
     @Autowired
@@ -45,14 +50,12 @@ public class OrderController {
         }
     }
 
-    // 4. 更新訂單狀態 (例如：確認訂單 confirmed / 取消訂單 cancelled)
-    // 範例：PATCH /api/orders/1/status?status=confirmed
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<Order> updateOrderStatus(
-            @PathVariable Integer id,
-            @RequestParam String status) {
-
-        Order updatedOrder = orderService.updateOrderStatus(id, status);
+    // 4. 更新訂單狀態與可承租車輛數
+    // 範例：PATCH /api/orders/confirmOrder
+    @PatchMapping("/confirmOrder")
+    public ResponseEntity<Order> updateCarAndConfirmOrder(
+            @RequestBody CreateOrderRequest request) {
+        Order updatedOrder = orderService.updateCarAndConfirmOrder( request);
         if (updatedOrder != null) {
             return ResponseEntity.ok(updatedOrder);
         } else {

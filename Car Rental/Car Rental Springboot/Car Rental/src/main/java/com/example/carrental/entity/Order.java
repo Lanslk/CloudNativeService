@@ -1,5 +1,6 @@
 package com.example.carrental.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,7 +30,7 @@ public class Order {
     private String email;
 
     @Column(name = "phone_no")
-    private String phoneNo;
+    private String phone;
 
     private String license;
     private String address;

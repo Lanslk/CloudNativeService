@@ -1,286 +1,293 @@
 /* global $ */
-/* global localStorage $ */
-var cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-$(document).ready(function() {
-    var categories = ["Sedan", "SUV", "Hatchback", "Truck", "Convertible"];
-    var brands = ["Audi", "BMW", "Chevrolet", "Ford", "Honda", "Hyundai", "Mazda", "Mercedes", "Nissan", "Subaru", "Toyota", "Others"];
-    var others = ["acura", "kia", "lexus", "mini", "tesla", "volkswagen", "volvo", "jeep"];
-    
-    function renderList(list, $element) {
-        $element.empty();
-        $.each(list, function(index, item) {
-            $element.append(`<div class="list-item" data-type="${$element.attr('id')}" data-value="${item}">${item}</li>`);
+// === 全域變數與常數設定 ===
+const API_BASE_URL = 'http://localhost:8080/api/cars';
+let allCarsData = []; // 暫存 API 取得的車輛資料，做前端篩選/搜尋用
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+
+let suggestionsList = []
+
+$(document).ready(function () {
+    initApp();
+});
+
+// === 1. 主初始化流程 ===
+function initApp() {
+    bindEventListeners();
+
+    // 如果在 index 頁面，自動載入 Spring Boot API 資料
+    if (window.location.pathname.endsWith('index.php') || window.location.pathname === '/') {
+        fetchCarsFromAPI();
+        fetchCategoriesFromAPI();
+        fetchBrandsFromAPI();
+    }
+}
+
+// === 2. API 資料溝通層 ===
+function fetchCarsFromAPI() {
+    fetch(API_BASE_URL)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+            return response.json();
+        })
+        .then(cars => {
+            allCarsData = cars; // 存入記憶體
+            renderProducts(allCarsData);
+        })
+        .catch(error => {
+            console.error('抓取 Spring Boot 車輛資料失敗：', error);
+            $('#productGrid').html('<p class="error-msg">無法載入車輛資料，請檢查後端 API 服務。</p>');
         });
+}
+
+function fetchCategoriesFromAPI() {
+    fetch(API_BASE_URL + '/types')
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+            return response.json();
+        })
+        .then(categories => {
+            suggestionsList = suggestionsList.concat(categories);
+            renderFilterLists(categories, $('#categoryList'));
+        })
+        .catch(error => {
+            console.error('抓取 Spring Boot 車輛種類失敗：', error);
+            $('#productGrid').html('<p class="error-msg">無法載入車輛種類，請檢查後端 API 服務。</p>');
+        });
+}
+
+function fetchBrandsFromAPI() {
+    fetch(API_BASE_URL + '/brands')
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+            return response.json();
+        })
+        .then(brands => {
+            suggestionsList = suggestionsList.concat(brands);
+            renderFilterLists(brands, $('#brandList'));
+        })
+        .catch(error => {
+            console.error('抓取 Spring Boot 車輛廠牌失敗：', error);
+            $('#productGrid').html('<p class="error-msg">無法載入車輛廠牌，請檢查後端 API 服務。</p>');
+        });
+}
+
+// === 3. 畫面繪製 (UI Render) ===
+function renderFilterLists(list, $element) {
+    renderList(list, $element);
+}
+
+function renderList(list, $element) {
+    $element.empty();
+    $.each(list, function (index, item) {
+        $element.append(`<div class="list-item" data-type="${$element.attr('id')}" data-value="${item}">${item}</div>`);
+    });
+}
+
+function renderProducts(products) {
+    const $productGrid = $('#productGrid');
+    $productGrid.empty();
+
+    if (!products || products.length === 0) {
+        $productGrid.html('<p class="no-data">查無符合條件的車輛</p>');
+        return;
     }
 
-    function renderProducts(products) {
-        var $productGrid = $('#productGrid');
-        $productGrid.empty(); // Clear existing content
+    products.forEach(product => {
+        const brand = product.brand || product.Brand || '';
+        const carName = product.car || product.carName || product.model || '';
+        const model = product.modelYear || product.ModelYear || '';
+        const type = product.type || product.Type || '';
+        const price = product.price || product.Price || 0;
+        const image = product.image || product.Image || 'default';
+        const quantity = product.quantity !== undefined ? product.quantity : (product.Quantity || 0);
 
-        $.each(products, function(index, product) {
-            var productCard = `
-                <div class="product-card">
-                    <div class="product-image-container">
-                        <img src="picture/${product.Image}.jpeg" class="product-image" alt="${product.Brand} ${product.Car}" 
-                        data-product='${JSON.stringify(product)}'>
-                    </div>
-                    <h2 class="product-title">${product.Brand} ${product.Car}</h2>
-                    <div class="product-details">
-                        <p class="product-title">Model: ${product.Model}\n</p>
-                        <p class="product-title">Type: ${product.Type}</p>
-                        <p class="product-title">Price/Day: $${product.Price}</p>
-                    </div>
-                    <div class="availability-button-container">`;
-            if (product.Quantity > 0) {
-                productCard += `<p class="product-available">Available Now</p>
-                                <button class="rent">Rent</button></div></div>`;
-            } else {
-                productCard += `<p class="product-unavailable">Unavailable</p></div></div>`;
-            }
-            $productGrid.append(productCard);
-        });
-        
-        // Add click event listener for images
-        $('.product-image').on('click', function() {
-            var productData = $(this).data('product');
+        const isAvailable = quantity > 0;
+        const productJsonStr = JSON.stringify(product).replace(/'/g, "&apos;");
+
+        const productCard = `
+            <div class="product-card">
+                <div class="product-image-container">
+                    <img src="images/${image}.jpeg" class="product-image" alt="${brand} ${carName}" data-product='${productJsonStr}'>
+                </div>
+                <h2 class="product-title">${brand} ${carName}</h2>
+                <div class="product-details">
+                    <p class="product-title">Model: ${model}</p>
+                    <p class="product-title">Type: ${type}</p>
+                    <p class="product-title">Price/Day: $${price}</p>
+                </div>
+                <div class="availability-button-container">
+                    ${isAvailable
+            ? `<p class="product-available">Available Now</p><button class="rent">Rent</button>`
+            : `<p class="product-unavailable">Unavailable</p>`}
+                </div>
+            </div>`;
+        $productGrid.append(productCard);
+    });
+}
+
+function showPopup(product) {
+    $('#popupContainer').show();
+    $('#popupDetails').load('details.php', function () {
+        const $productGrid = $('#detailGrid');
+        $productGrid.empty();
+
+        const brand = product.brand || product.Brand || '';
+        const carName = product.car || product.carName || '';
+        const image = product.image || product.Image || '';
+        const type = product.type || product.Type || '';
+        const model = product.modelYear || product.ModelYear || '';
+        const price = product.price || product.Price || 0;
+        const fuelType = product.fuel_Type || product.Fuel_Type || 'N/A';
+        const seats = product.seats || product.Seats || 'N/A';
+        const description = product.description || product.Description || '';
+
+        const detailCard = `
+            <div class="detail-card">
+                <h2 class="product-title">${brand} ${carName}</h2>
+                <img src="images/${image}.jpeg" class="detail-image" alt="${brand} ${carName}">
+                <div class="product-details">
+                    <p class="product-title">Type: ${type}</p>
+                    <p class="product-title">Year: ${model}</p>
+                    <p class="product-title">Price/Day: $${price}</p>
+                    <p class="product-title">Fuel Type: ${fuelType}</p>
+                    <p class="product-title">Seats: ${seats}</p>
+                    <p class="product-title">Description: ${description}</p>
+                </div>
+            </div>`;
+        $productGrid.append(detailCard);
+    });
+}
+
+// === 4. 資料篩選邏輯 (Filter Logic) ===
+function filterProducts(filterType, filterValue) {
+    let url = API_BASE_URL;
+    const params = new URLSearchParams();
+
+    if (filterType === 'Type') {
+        params.append('type', filterValue);
+    } else if (filterType === 'Brand') {
+        params.append('brand', filterValue);
+    } else if (filterType === 'search') {
+        params.append('keyword', filterValue);
+    }
+    let URL = url;
+    // 組合 URL：例如 http://localhost:8080/api/cars?brand=Toyota
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
+
+    fetch(url)
+        .then(response => response.json())
+        .then(cars => renderProducts(cars))
+        .catch(error => console.error('篩選 API 呼叫失敗:', error));
+}
+
+// === 5. 事件監聽 (Event Delegation) ===
+function bindEventListeners() {
+    // 使用 事件代理 監聽動態產生的卡片按鈕
+    $('#productGrid')
+        .on('click', '.product-image', function () {
+            const productData = $(this).data('product');
             localStorage.setItem('selectedProduct', JSON.stringify(productData));
             showPopup(productData);
-        });
-        
-        // Add click event listener for rent buttons
-        $('.rent').on('click', function() {
-            var productData = $(this).closest('.product-card').find('.product-image').data('product');
+        })
+        .on('click', '.rent', function () {
+            const productData = $(this).closest('.product-card').find('.product-image').data('product');
             addToCart(productData);
             window.location.href = 'reservation.php';
         });
-        
-        // Add click event listener for reservation buttons
-        $('#cartButton').on('click', function() {
-            window.location.href = 'reservation.php';
-        });
-    }
 
-    function fetchAndRenderProducts(filterType, filterValue) {
-        $.getJSON('cars.json', function(data) {
-            var filteredProducts;
-            if (filterType && filterValue) {
-                filteredProducts = data.filter(function(product) {
-                    if (filterType == 'Brand' && filterValue == 'Others') {
-                        return others.includes(product[filterType].toLowerCase());
-                    } else if (filterType == 'search') {
-                        
-                        
-                        return product['Brand'].toLowerCase().indexOf(filterValue.toLowerCase()) !== -1 ||
-                               product['Type'].toLowerCase().indexOf(filterValue.toLowerCase()) !== -1 ||
-                               product['Car'].toLowerCase().indexOf(filterValue.toLowerCase()) !== -1
-                    } else {
-                        return product[filterType].toLowerCase() === filterValue.toLowerCase();
-                    }
-                });
-            } else {
-                filteredProducts = data; // No filter, return all products
-            }
-            renderProducts(filteredProducts);
-        }).fail(function(jqxhr, textStatus, error) {
-            var err = textStatus + ", " + error;
-            console.log("Request Failed: " + err);
-        });
-    }
-    
-    function showPopup(productData) {
-        $('#popupContainer').show();
-        // Load details.php content into the pop-up
-        $('#popupDetails').load('details.php', function() {
-            // After loading, populate the details
-            var product = JSON.parse(localStorage.getItem('selectedProduct'));
-            // Use product data to populate the content if necessary
-            var $productGrid = $('#detailGrid');
-            $productGrid.empty(); // Clear existing content
-        
-            var productCard = `
-                <div class="detail-card">
-                    <h2 class="product-title">${product.Brand} ${product.Car}</h2>
-                    <img src="picture/${product.Image}.jpeg" class="detail-image" alt="${product.Brand} ${product.Car}" 
-                    data-product='${JSON.stringify(product)}'>
-                    <div class="product-details">
-                        <p class="product-title">Type: ${product.Type}</p>
-                        <p class="product-title">Year: ${product.Model}</p>
-                        <p class="product-title">Price/Day: $${product.Price}</p>
-                        <p class="product-title">Fuel Type: ${product.Fuel_Type}</p>
-                        <p class="product-title">Seats: ${product.Seats}</p>
-                        <p class="product-title">Description: ${product.Description}</p>
-                    </div>`;
-                    
-            $productGrid.append(productCard);
-        });
-    }
+    // 選單切換
+    $('#categoryButton').click(() => { $('#brandSection').hide(); $('#categorySection').toggle(); });
+    $('#brandButton').click(() => { $('#categorySection').hide(); $('#brandSection').toggle(); });
 
-    $('#closePopup').click(function() {
+    $('#categoryList').on('click', '.list-item', function () {
+        filterProducts('Type', $(this).data('value'));
+    });
+
+    $('#brandList').on('click', '.list-item', function () {
+        filterProducts('Brand', $(this).data('value'));
+    });
+
+    // 點擊空白處關閉選單
+    $(document).on('click', function (event) {
+        const $target = $(event.target);
+        if (!$target.closest('#categoryButton, #categorySection').length) $('#categorySection').hide();
+        if (!$target.closest('#brandButton, #brandSection').length) $('#brandSection').hide();
+    });
+
+    // 彈出視窗關閉
+    $('#closePopup').click(function () {
         $('#popupContainer').hide();
-        $('#popupDetails').empty(); // Clear the pop-up content
-    });
-    
-    function addToCart(product) {
-        cart = [product];
-        localStorage.setItem('cart', JSON.stringify(cart));
-    }
-
-    $('#categoryButton').click(function() {
-        $('#brandSection').hide();
-        $('#categorySection').toggle();
+        $('#popupDetails').empty();
     });
 
-    $('#brandButton').click(function() {
-        $('#categorySection').hide();
-        $('#brandSection').toggle();
-    });
+    // 搜尋功能
+    $('#searchButton').on('click', executeSearch);
 
-    $('#categoryList').on('click', '.list-item', function() {
-        var category = $(this).data('value');
-        fetchAndRenderProducts('Type', category);
-    });
+    // 搜尋建議關鍵字點擊
+    const $searchBox = $('#searchInput');
+    const $suggestions = $('#suggestions');
 
-    $('#brandList').on('click', '.list-item', function() {
-        var brand = $(this).data('value');
-        fetchAndRenderProducts('Brand', brand);
-    });
-    
-    // Event listener to hide area when clicking outside
-    $(document).on('click', function(event) {
-        var $target = $(event.target);
-        if (!$target.closest('#categoryButton').length && !$target.closest('#categorySection').length) {
-            $('#categorySection').hide();
-        }
-        if (!$target.closest('#brandButton').length && !$target.closest('#brandSection').length) {
-            $('#brandSection').hide();
-        }
-    });
-    
-    $('.logo').on('click', function() {
-        window.location.href = 'index.php';
-    });
-    
-    $('#searchButton').on('click', function() {
-        var keyword = $('#searchInput').val();
-        if (!recentSearches.includes(keyword)) {
-            recentSearches.unshift(keyword);
-            if (recentSearches.length > 5) {
-                recentSearches.pop();
+    $searchBox.attr("autocomplete", "off")
+        .on('focus input', function () {
+            const query = $(this).val().trim();
+            if (query === '') {
+                showSuggestions('Recent Searches', recentSearches);
+            } else {
+                const matches = suggestionsList.filter(item => item.toLowerCase().includes(query.toLowerCase()));
+                showSuggestions('Suggestions', matches);
             }
-            localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-        }
-        fetchAndRenderProducts('search', $('#searchInput').val());
-    });
-    
-
-    // Initialize the lists
-    renderList(categories, $('#categoryList'));
-    renderList(brands, $('#brandList'));
-
-    // Fetch and render products on index.php and details.php
-    if (window.location.pathname.endsWith('index.php')) {
-        fetchAndRenderProducts();
-    }
-    
-    // search suggestion
-    const suggestionsList = [
-    "sedan", "Toyota", "Camry",
-    "SUV", "Honda", "CR-V",
-    "hatchback", "Ford", "Fiesta",
-    "BMW", "3 Series",
-    "Audi", "Q5",
-    "Mercedes", "C-Class",
-    "truck", "F-150",
-    "convertible", "Mazda", "MX-5",
-    "Nissan", "Altima",
-    "Jeep", "Wrangler",
-    "Hyundai", "Sonata",
-    "Kia", "Sorento",
-    "Tesla", "Model S",
-    "Chevrolet", "Tahoe",
-    "Volkswagen", "Golf",
-    "Lexus", "ES 350",
-    "Subaru", "Outback",
-    "Acura", "TLX",
-    "Mini", "Cooper",
-    "Volvo", "XC60",
-    "Malibu",
-    "Escape",
-    "Accord",
-    "CX-5",
-    "Elantra",
-    "Rogue",
-    "Corolla",
-    "Forester",
-    "Silverado",
-    "E-Class",
-    "Q7",
-    "Focus",
-    "5 Series",
-    "Highlander",
-    "A4"];
-    
-    var $searchBox = $('#searchInput');
-    var $suggestions = $('#suggestions');
-    var recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
-    
-    function showSuggestions(type, matches) {
-        $suggestions.empty();
-        if (matches.length > 0) {
-            $suggestions.append('<span class = "sugesstion-title">' + type + '</span>');
-        }
-        matches.forEach(function(match) {
-            $suggestions.append('<div>' + match + '</div>');
+        })
+        .on('blur', function () {
+            setTimeout(() => $suggestions.hide(), 300);
         });
-        $suggestions.show();
-    }
-    
-    function getMatches(list, query) {
-        return list.filter(function(item) {
-            return item.toLowerCase().indexOf(query.toLowerCase()) !== -1;
-        });
-    }
-    
-    $searchBox.on('focus', function() {
-        if ($searchBox.val() === '') {
-            showSuggestions('Recent Searches', recentSearches);
-        } else {
-            var query = $searchBox.val();
-            var matches = getMatches(suggestionsList, query);
-            showSuggestions('Suggestions', matches);
-        }
-    });
-    
-    $searchBox.on('blur', function() {
-        setTimeout(function() {
+
+    $suggestions.on('click', 'div', function () {
+        const keyword = $(this).text();
+        if (keyword !== 'Recent Searches' && keyword !== 'Suggestions') {
+            $searchBox.val(keyword);
             $suggestions.hide();
-        }, 500);
-    });
-
-    $searchBox.on('input', function() {
-        var query = $searchBox.val();
-        if (query === '') {
-            showSuggestions('Recent Searches', recentSearches);
-        } else {
-            var matches = getMatches(suggestionsList, query);
-            showSuggestions('Suggestions', matches);
+            executeSearch();
         }
     });
 
-    $suggestions.on('click', 'div', function() {
-        var keyword = $(this).text();
-        $searchBox.val(keyword);
-        $suggestions.hide();
-    });
-    
-    $('.searchInput').attr("autocomplete", "off");
-});
+    $('.logo').on('click', () => { window.location.href = 'index.php'; });
+    $('#cartButton').on('click', () => { window.location.href = 'reservation.php'; });
+}
 
-window.addEventListener('pageshow', function(event) {
+function executeSearch() {
+    const keyword = $('#searchInput').val().trim();
+    if (keyword && !recentSearches.includes(keyword)) {
+        recentSearches.unshift(keyword);
+        if (recentSearches.length > 5) recentSearches.pop();
+        localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    }
+    filterProducts('search', keyword);
+}
+
+function showSuggestions(type, matches) {
+    const $suggestions = $('#suggestions');
+    $suggestions.empty();
+    if (matches.length > 0) {
+        $suggestions.append(`<span class="sugesstion-title">${type}</span>`);
+        matches.forEach(match => $suggestions.append(`<div>${match}</div>`));
+        $suggestions.show();
+    } else {
+        $suggestions.hide();
+    }
+}
+
+function addToCart(product) {
+    cart = [product];
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+// 瀏覽器上一頁/下一頁快取處理
+window.addEventListener('pageshow', function (event) {
     if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-        // Page was restored from the cache or navigated via back/forward buttons
-        // Update number in cart
         cart = JSON.parse(localStorage.getItem('cart')) || [];
         $('#cartCount').text(cart.length);
     }
