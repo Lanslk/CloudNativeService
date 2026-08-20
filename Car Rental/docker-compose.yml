@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # --- 1. 資料庫服務 ---
+  db:
+    image: mysql:8.0
+    container_name: car_rental_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      # 自動在第一次啟動時執行初始化 SQL (若有 schema.sql 請確認路徑)
+      - ./table/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  # --- 2. Spring Boot 後端 ---
+  backend:
+    build:
+      context: ./Car Rental Springboot/Car Rental
+      dockerfile: Dockerfile
+    container_name: car_rental_backend
+    ports:
+      - "8080:8080"
+    environment:
+      # 關鍵：注意主機名直接寫 db (docker-compose 的 service 名稱)
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+    depends_on:
+      - db
+
+  # --- 3. PHP 前端 ---
+  frontend:
+    build:
+      context: ./Car Rental website
+      dockerfile: Dockerfile
+    container_name: car_rental_frontend
+    ports:
+      - "8000:80"        # 將容器內的 80 埠映射到本機 8000 埠
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
