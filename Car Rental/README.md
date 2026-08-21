@@ -25,7 +25,7 @@
 
 ## 📋 環境需求 (Prerequisites)
 
-* **JDK**: 17 或以上
+* **JDK**: 21 或以上
 * **PHP**: 8.0 或以上
 * **MySQL**: 8.0 或以上
 * **IDE**: IntelliJ IDEA Ultimate / Community (搭配 PHP Plugin)
