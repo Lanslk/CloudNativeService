@@ -1,7 +1,7 @@
 /* global $ */
 
 // === 全域變數與常數設定 ===
-const API_BASE_URL = 'http://localhost:8080/api/cars';
+const API_BASE_URL = 'http://${window.location.hostname}:8080/api/cars';
 let allCarsData = []; // 暫存 API 取得的車輛資料，做前端篩選/搜尋用
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
