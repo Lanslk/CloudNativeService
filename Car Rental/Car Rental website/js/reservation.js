@@ -1,6 +1,6 @@
 /* global $ */
 
-const API_BASE_URL = 'http://${window.location.hostname}:8080/api/cars';
+const API_BASE_URL = `http://${window.location.hostname}:8080/api/cars`;
 
 // === 1. 全域購物車管理模組 (Cart Manager) ===
 const CartManager = {

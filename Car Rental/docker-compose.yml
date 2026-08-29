@@ -25,12 +25,12 @@ services:
       dockerfile: Dockerfile
     container_name: car_rental_backend
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT}:8080"
     environment:
       # 關鍵：注意主機名直接寫 db (docker-compose 的 service 名稱)
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     depends_on:
       - db
 
@@ -41,9 +41,11 @@ services:
       dockerfile: Dockerfile
     container_name: car_rental_frontend
     ports:
-      - "8000:80"        # 將容器內的 80 埠映射到本機 8000 埠
+      - "${FRONTEND_PORT}:80"        # 將容器內的 80 埠映射到本機 8000 埠
     depends_on:
       - backend
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
 
 volumes:
   db_data:
