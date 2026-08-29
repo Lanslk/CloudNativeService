@@ -1,6 +1,6 @@
 /* global $ */
 
-const API_BASE_URL = `http://${window.location.hostname}:8080/api/cars`;
+const API_BASE_URL = `http://${window.location.hostname}:8080/api`;
 
 // === 1. 全域購物車管理模組 (Cart Manager) ===
 const CartManager = {
@@ -32,9 +32,9 @@ const OrderService = {
     // 取得即時車輛庫存
     async fetchCarQuantity(carNo) {
         try {
-            // 呼叫 Spring Boot API: fetch(`http://localhost:8080/api/cars/${carNo}`)
+            // 呼叫 Spring Boot API
             const data = await $.ajax({
-                url: API_BASE_URL + '/' + carNo,
+                url: API_BASE_URL + '/cars/' + carNo,
                 type: 'GET',
                 contentType: 'application/json',
                 data: JSON.stringify(carNo)
@@ -51,7 +51,7 @@ const OrderService = {
     // 建立訂單
     async createOrder(orderData) {
         return $.ajax({
-            url: 'http://localhost:8080/api/orders',
+            url: API_BASE_URL + '/orders',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(orderData)
@@ -62,7 +62,7 @@ const OrderService = {
     async confirmOrderProcess(orderNo, carId, carNumber) {
         let orderRequestDto = {ordersNo : orderNo, carId : carId, carNumber: carNumber}
         return $.ajax({
-            url: 'http://localhost:8080/api/orders/confirmOrder',
+            url: API_BASE_URL + '/orders/confirmOrder',
             type: 'PATCH',
             contentType: 'application/json',
             data: JSON.stringify(orderRequestDto)
