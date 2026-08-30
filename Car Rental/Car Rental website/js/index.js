@@ -1,7 +1,16 @@
 /* global $ */
 
 // === 全域變數與常數設定 ===
-const API_BASE_URL = `http://${window.location.hostname}:8080/api/cars`;
+// 自動判斷目前環境
+const isLocalhost = Boolean(
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+);
+
+// 如果是在本機，連線到 8080 Port；如果是在 AWS 上（有 ALB），自動改用相對路徑 /api
+const API_BASE_URL = isLocalhost
+    ? `http://${window.location.hostname}:8080/api`
+    : '/api';
 let allCarsData = []; // 暫存 API 取得的車輛資料，做前端篩選/搜尋用
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
@@ -26,7 +35,7 @@ function initApp() {
 
 // === 2. API 資料溝通層 ===
 function fetchCarsFromAPI() {
-    fetch(API_BASE_URL)
+    fetch(API_BASE_URL + '/cars')
         .then(response => {
             if (!response.ok) throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
             return response.json();
@@ -42,7 +51,7 @@ function fetchCarsFromAPI() {
 }
 
 function fetchCategoriesFromAPI() {
-    fetch(API_BASE_URL + '/types')
+    fetch(API_BASE_URL + '/cars/types')
         .then(response => {
             if (!response.ok) throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
             return response.json();
@@ -58,7 +67,7 @@ function fetchCategoriesFromAPI() {
 }
 
 function fetchBrandsFromAPI() {
-    fetch(API_BASE_URL + '/brands')
+    fetch(API_BASE_URL + '/cars/brands')
         .then(response => {
             if (!response.ok) throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
             return response.json();
@@ -162,7 +171,7 @@ function showPopup(product) {
 
 // === 4. 資料篩選邏輯 (Filter Logic) ===
 function filterProducts(filterType, filterValue) {
-    let url = API_BASE_URL;
+    let url = API_BASE_URL + '/cars';
     const params = new URLSearchParams();
 
     if (filterType === 'Type') {

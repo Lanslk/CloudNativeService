@@ -1,6 +1,15 @@
 /* global $ */
 
-const API_BASE_URL = `http://${window.location.hostname}:8080/api`;
+// 自動判斷目前環境
+const isLocalhost = Boolean(
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+);
+
+// 如果是在本機，連線到 8080 Port；如果是在 AWS 上（有 ALB），自動改用相對路徑 /api
+const API_BASE_URL = isLocalhost
+    ? `http://${window.location.hostname}:8080/api`
+    : '/api';
 
 // === 1. 全域購物車管理模組 (Cart Manager) ===
 const CartManager = {
