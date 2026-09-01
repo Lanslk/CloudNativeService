@@ -1,0 +1,15 @@
+# 1. 忽略 Terraform 初始化產生的本地套件檔
+.terraform/
+.terraform.lock.hcl
+
+# 2. 忽略 Terraform 狀態檔 (未來會存放在 S3 遠端，不留本地)
+*.tfstate
+*.tfstate.*
+
+# 3. 忽略包含敏感資訊的變數設定檔
+*.tfvars
+*.tfvars.json
+
+# 4. 忽略本地日誌與備份
+*.log
+crash.log
