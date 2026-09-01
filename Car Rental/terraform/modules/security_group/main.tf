@@ -54,7 +54,16 @@ resource "aws_security_group" "ec2" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
+    cidr_blocks = ["10.0.0.0/16"] # 只允許來自 VPC CIDR 的流量
+  }
+
+  # 允許來自使用相同 SG 的 EICE 轉發 SSH 流量 (新增這段)
+  ingress {
+    description = "SSH from EICE Security Group"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    self        = true
   }
 
   egress {

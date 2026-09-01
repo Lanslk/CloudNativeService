@@ -32,8 +32,8 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-    depends_on:
-      - db
+#    depends_on: 本機才執行
+#      - db      本機才執行
 
   # --- 3. PHP 前端 ---
   frontend:

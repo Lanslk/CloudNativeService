@@ -30,28 +30,30 @@ resource "aws_launch_template" "app" {
               # 2. 啟動 Docker 服務並設定開機自動啟動
               systemctl start docker
               systemctl enable docker
-
-              # 3. 將預設使用者加入 docker 群組 (可選)
               usermod -aG docker ec2-user
 
-              # 4. (如果使用 Docker Compose) 安裝 Docker Compose Plugin
-              DOCKER_CONFIG=$${HOME}/.docker
-              mkdir -p $DOCKER_CONFIG/cli-plugins
-              curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
-              chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+              # 3. 安裝官方獨立版 docker-compose 二進位檔
+              curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              chmod +x /usr/local/bin/docker-compose
+              ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
-              # 5. 下載 Git 專案並啟動應用程式
+              # 4. Clone 專案
               cd /home/ec2-user
-              # 若為 Public Repo 直接 clone，Private Repo 可帶 Token 或先從 S3/Secrets Manager 拉取 key
               git clone https://github.com/Lanslk/CloudNativeService.git app
               cd app
 
-              # 6. 設定環境變數並啟動 Docker 服務
-              export DB_HOST="${var.db_host}"
-              export DB_PASSWORD="${var.db_password}"
+              # 5. 在包含 docker-compose.yml 的目錄產生 .env 寫入環境變數至 Car Rental 目錄
+              ENV_FILE="/home/ec2-user/app/Car Rental/.env"
+              echo "BACKEND_PORT=8080" > "$ENV_FILE"
+              echo "FRONTEND_PORT=80" >> "$ENV_FILE"
+              echo "SPRING_DATASOURCE_URL=jdbc:mysql://${var.db_host}/car_rental_db?useSSL=false&allowPublicKeyRetrieval=true" >> "$ENV_FILE"
+              echo "SPRING_DATASOURCE_USERNAME=admin" >> "$ENV_FILE"
+              echo "SPRING_DATASOURCE_PASSWORD=${var.db_password}" >> "$ENV_FILE"
+              echo "BACKEND_URL=http://localhost:8080" >> "$ENV_FILE"
 
-              # 使用 Docker Compose 啟動服務，或是直接 docker run
-              docker-compose up -d --build
+
+              # 6. 直接使用 -f 參數指定路徑啟動，完全避開 cd 切換目錄的問題
+              /usr/local/bin/docker-compose -f "/home/ec2-user/app/Car Rental/docker-compose.yml" up -d --build
               EOF
   )
 
