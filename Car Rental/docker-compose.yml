@@ -26,6 +26,7 @@ services:
     container_name: car_rental_backend
     ports:
       - "${BACKEND_PORT}:8080"
+    restart: always
     environment:
       # 關鍵：注意主機名直接寫 db (docker-compose 的 service 名稱)
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
@@ -42,6 +43,7 @@ services:
     container_name: car_rental_frontend
     ports:
       - "${FRONTEND_PORT}:80"        # 將容器內的 80 埠映射到本機 8000 埠
+    restart: always
     depends_on:
       - backend
     environment:
