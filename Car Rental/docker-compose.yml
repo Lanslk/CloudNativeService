@@ -13,10 +13,13 @@ services:
 #      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 #    ports:
 #      - "3307:3306"
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 10
 #    volumes:
 #      - db_data:/var/lib/mysql
-#      # 自動在第一次啟動時執行初始化 SQL (若有 schema.sql 請確認路徑)
-#      - ./table/schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
   # --- 2. Spring Boot 後端 ---
   backend:
@@ -32,8 +35,9 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-#    depends_on: 本機才執行
-#      - db      本機才執行
+#    depends_on: #本機才執行
+#      db:
+#        condition: service_healthy #本機才執行
 
   # --- 3. PHP 前端 ---
   frontend:
@@ -50,3 +54,6 @@ services:
       - BACKEND_URL=${BACKEND_URL}
     volumes:
       - ./Car Rental website/000-default.conf:/etc/apache2/sites-available/000-default.conf
+
+volumes:
+  db_data:
