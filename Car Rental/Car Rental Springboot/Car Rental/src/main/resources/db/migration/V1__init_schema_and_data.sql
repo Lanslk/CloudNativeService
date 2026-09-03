@@ -39,8 +39,9 @@ CREATE TABLE orders (
                         country VARCHAR(50) DEFAULT NULL COMMENT '國家',
                         zip VARCHAR(10) DEFAULT NULL COMMENT '郵遞區號',
                         orders_details VARCHAR(2000) DEFAULT NULL COMMENT '訂單詳細內容 (如租車項目、租期、金額計算之 JSON 或字串)',
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '訂單建立時間',
-                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '訂單更新時間',
+                        created_date DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '訂單建立時間',
+                        updat_date DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '訂單建立時間',
+                        last_modified_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '訂單更新時間',
                         PRIMARY KEY (orders_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='租車訂單資料表';
 
