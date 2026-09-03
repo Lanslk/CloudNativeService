@@ -1,4 +1,4 @@
-use myjdbc;
+use car_rental_db;
 -- ----------------------------
 -- Table structure for cars
 -- ----------------------------

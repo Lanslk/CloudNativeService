@@ -48,6 +48,5 @@ services:
       - backend
     environment:
       - BACKEND_URL=${BACKEND_URL}
-
-volumes:
-  db_data:
+    volumes:
+      - ./Car Rental website/000-default.conf:/etc/apache2/sites-available/000-default.conf

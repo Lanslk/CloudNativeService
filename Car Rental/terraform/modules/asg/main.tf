@@ -23,26 +23,33 @@ resource "aws_launch_template" "app" {
   # User Data：開機自動寫入環境變數並啟動 Docker / 應用程式
   user_data = base64encode(<<-EOF
               #!/bin/bash
-              # 1. 更新系統套件並安裝 Docker 與 Git
+              # 1. 更新系統並安裝 Docker 與 Git
               dnf update -y
               dnf install -y docker git
 
-              # 2. 啟動 Docker 服務並設定開機自動啟動
+              # 2. 啟動 Docker 服務
               systemctl start docker
               systemctl enable docker
               usermod -aG docker ec2-user
 
-              # 3. 安裝官方獨立版 docker-compose 二進位檔
+              # 3. 手動安裝最新版 Docker Buildx Plugin
+              mkdir -p /usr/libexec/docker/cli-plugins
+              curl -SL "https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64" -o /usr/libexec/docker/cli-plugins/docker-buildx
+              chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
+
+              # 4. 安裝獨立版 docker-compose
               curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
               chmod +x /usr/local/bin/docker-compose
               ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
-              # 4. Clone 專案
+              # 5. 解除 Git 安全目錄限制
+              git config --global --add safe.directory "*"
+
+              # 6. Clone 專案庫
               cd /home/ec2-user
               git clone https://github.com/Lanslk/CloudNativeService.git app
-              cd app
 
-              # 5. 在包含 docker-compose.yml 的目錄產生 .env 寫入環境變數至 Car Rental 目錄
+              # 7. 寫入環境變數至 .env 檔
               ENV_FILE="/home/ec2-user/app/Car Rental/.env"
               echo "BACKEND_PORT=8080" > "$ENV_FILE"
               echo "FRONTEND_PORT=80" >> "$ENV_FILE"
@@ -51,8 +58,7 @@ resource "aws_launch_template" "app" {
               echo "SPRING_DATASOURCE_PASSWORD=${var.db_password}" >> "$ENV_FILE"
               echo "BACKEND_URL=http://localhost:8080" >> "$ENV_FILE"
 
-
-              # 6. 直接使用 -f 參數指定路徑啟動，完全避開 cd 切換目錄的問題
+              # 8. 啟動容器 (使用 -f 指定檔案路徑)
               /usr/local/bin/docker-compose -f "/home/ec2-user/app/Car Rental/docker-compose.yml" up -d --build
               EOF
   )
