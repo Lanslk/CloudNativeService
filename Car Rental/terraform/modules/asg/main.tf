@@ -15,6 +15,10 @@ resource "aws_launch_template" "app" {
   image_id      = var.ami_id != "" ? var.ami_id : data.aws_ami.amazon_linux_2023.id
   instance_type = "t3.micro"
 
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ec2_profile.name
+  }
+
   network_interfaces {
     associate_public_ip_address = false # Private Subnet 中的 Instance 不需要 Public IP
     security_groups             = [var.ec2_security_group_id]
@@ -106,4 +110,44 @@ resource "aws_ec2_instance_connect_endpoint" "eice" {
   tags = {
     Name = "car-rental-eice-${var.environment}"
   }
+}
+
+# 1. 建立 EC2 用的 IAM Role
+resource "aws_iam_role" "ec2_role" {
+  name = "car-rental-ec2-role-${var.environment}"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+# 2. 附加 SSM 權限 (讓 GitHub Actions 能用 SSM send-command 部署)
+resource "aws_iam_role_policy_attachment" "ec2_ssm" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+# 3. 附加 ECR 權限 (讓 EC2 能 docker login / docker pull 拉取私有映像檔)
+resource "aws_iam_role_policy_attachment" "ec2_ecr" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+# 4. 建立 Instance Profile (將 Role 包裝成 EC2 吃的格式)
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "car-rental-ec2-instance-profile-${var.environment}"
+  role = aws_iam_role.ec2_role.name
 }
