@@ -48,7 +48,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f "Car Rental/Car Rental Springboot/Dockerfile" "Car Rental"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f "Car Rental/docker-compose.yml" "Car Rental"
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
       # 7. 透過 AWS SSM 對 ASG 內的所有 EC2 發送部署命令
