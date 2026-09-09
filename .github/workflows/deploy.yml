@@ -21,11 +21,14 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
+      
+      - name: Check Java Version
+        run: java -version
 
       # 3. Maven 打包產出 Spring Boot JAR 檔
       - name: Build with Maven
-        run: mvn clean package -DskipTests -f "Car Rental/Car Rental Springboot/Car Rental/pom.xml"
-
+        run: mvn clean package -DskipTests -Dmaven.compiler.release=21 -f "Car Rental/Car Rental Springboot/Car Rental/pom.xml"
+        
       # 4. 配置 AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
