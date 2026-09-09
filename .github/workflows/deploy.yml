@@ -26,8 +26,9 @@ jobs:
         run: java -version
 
       # 3. Maven 打包產出 Spring Boot JAR 檔
-      - name: Build with Maven
-        run: mvn clean package -DskipTests -Dmaven.compiler.release=21 -f "Car Rental/Car Rental Springboot/Car Rental/pom.xml"
+      - name: Build with maven
+        working-directory: "./Car Rental/Car Rental Springboot/Car Rental"
+        run: mvn clean package -DskipTests -Dmaven.compiler.release=21
         
       # 4. 配置 AWS Credentials
       - name: Configure AWS Credentials
@@ -44,6 +45,7 @@ jobs:
 
       # 6. 建置 Docker Image 並推送到 ECR
       - name: Build, tag, and push image to Amazon ECR
+        working-directory: "./Car Rental/Car Rental Springboot/Car Rental"
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
