@@ -6,7 +6,11 @@ ENTRYPOINT ["top", "-b"]
 # === Stage 1: 用 Maven 進行編譯打包 ===
 FROM maven:3.9-eclipse-temurin-21 AS builder
 WORKDIR /app
+# 複製 pom.xml 並預先下載依賴套件（利用 Docker 快取加速）
 COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# 複製原始碼並編譯打包
 COPY src ./src
 RUN mvn clean package -DskipTests
 
