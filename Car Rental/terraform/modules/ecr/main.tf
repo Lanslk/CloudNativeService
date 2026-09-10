@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "app" {
-  name                 = "car-rental-app"
+  name                 = "carrental-backend" 
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -11,7 +11,7 @@ resource "aws_ecr_repository" "app" {
   }
 }
 
-# 設定 Lifecycle Policy，只保留最新 5 個 Image（節省儲存成本）
+# 保留生命週期策略（自動省錢）
 resource "aws_ecr_lifecycle_policy" "app_policy" {
   repository = aws_ecr_repository.app.name
 
