@@ -23,9 +23,7 @@ services:
 
   # --- 2. Spring Boot 後端 ---
   backend:
-    build:
-      context: ./Car Rental Springboot/Car Rental
-      dockerfile: Dockerfile
+    image: 032281018698.dkr.ecr.ap-northeast-1.amazonaws.com/carrental-backend:latest
     container_name: car_rental_backend
     ports:
       - "${BACKEND_PORT}:8080"

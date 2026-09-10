@@ -62,8 +62,13 @@ resource "aws_launch_template" "app" {
               echo "SPRING_DATASOURCE_PASSWORD=${var.db_password}" >> "$ENV_FILE"
               echo "BACKEND_URL=http://localhost:8080" >> "$ENV_FILE"
 
-              # 8. 啟動容器 (使用 -f 指定檔案路徑)
-              /usr/local/bin/docker-compose -f "/home/ec2-user/app/Car Rental/docker-compose.yml" up -d --build
+              # 8. 登入 AWS ECR 取得拉取授權 (透過 EC2 的 IAM Role)
+              AWS_REGION="ap-northeast-1"
+              aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 032281018698.dkr.ecr.$AWS_REGION.amazonaws.com
+
+              # 9. 從 ECR 拉取最新的 Image 並啟動容器 (移除 --build)
+              /usr/local/bin/docker-compose -f "/home/ec2-user/app/Car Rental/docker-compose.yml" pull
+              /usr/local/bin/docker-compose -f "/home/ec2-user/app/Car Rental/docker-compose.yml" up -d
               EOF
   )
 
