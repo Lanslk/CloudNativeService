@@ -35,3 +35,8 @@ module "asg" {
   db_password            = var.db_password
   # ami_id                = "ami-0123456789abcdef0" # 若要使用 Phase 6 打包的 AMI，可以在此填入
 }
+
+module "ecr" {
+  source      = "./modules/ecr"  # 指向你的 ecr 模組路徑
+  environment = var.environment  # 如果 ecr/main.tf 裡面有用到 var.environment 變數，需要在這裡傳進去
+}

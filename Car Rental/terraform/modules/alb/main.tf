@@ -24,7 +24,7 @@ resource "aws_lb_target_group" "app" {
     path                = "/" # 依據你的 Web 服務根路徑或健康檢查路徑調整
     port                = "80"
     protocol            = "HTTP"
-    interval            = 30
+    interval            = 15
     timeout             = 5
     healthy_threshold   = 2
     unhealthy_threshold = 3

@@ -28,7 +28,6 @@ resource "aws_launch_template" "app" {
   user_data = base64encode(<<-EOF
               #!/bin/bash
               # 1. 更新系統並安裝 Docker 與 Git
-              dnf update -y
               dnf install -y docker git
 
               # 2. 啟動 Docker 服務
@@ -99,8 +98,8 @@ resource "aws_autoscaling_group" "app" {
     version = "$Latest"
   }
 
-  health_check_type         = "ELB" # 使用 ALB Target Group 的 Health Check 判定健康狀態
-  health_check_grace_period = 300
+  health_check_type         = "EC2"
+  health_check_grace_period = 60
 
   lifecycle {
     create_before_destroy = true
