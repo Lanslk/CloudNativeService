@@ -48,3 +48,53 @@ AWS 架構圖:Car Rental/Diagram/CarRentalService AWS architecture diagram-v4.jp
                                                                ▼
                                                    [ 私有子網 EC2 伺服器 ]
 ```
+
+# 🚗 CarRental Cloud-Native Microservices Architecture & Automated CI/CD Pipeline
+
+> An enterprise-grade, high-availability, and fault-tolerant cloud infrastructure built on **AWS**, managed via **Terraform** (IaC), and automated with **GitHub Actions**, **Amazon ECR**, and **AWS Systems Manager (SSM)**.
+
+---
+
+## 📐 Architecture Overview
+
+This project demonstrates a production-ready AWS cloud infrastructure designed with security, scalability, and high availability in mind. It separates application layers into public and private subnets across multiple Availability Zones (Multi-AZ) and eliminates traditional SSH risks by utilizing AWS Systems Manager for zero-port remote deployment.
+
+![AWS Architecture Diagram] Car Rental/Diagram/CarRentalService AWS architecture diagram-v4.jpg
+
+### Key Architecture Highlights:
+- **High Availability & Security**: Dual-AZ VPC with Public/Private Subnet isolation. EC2 instances and RDS instances reside in private subnets, accessible only through ALB and NAT Gateways.
+- **Infrastructure as Code (IaC)**: 100% modularized Terraform scripts managing network, load balancing, auto-scaling, database, and container registries.
+- **Zero-SSH Operations**: Port 22 is strictly disabled. All operational commands and automated deployments are executed via AWS SSM Agent and IAM roles.
+- **Optimized Deployment Pipeline**: Containerized Spring Boot backend pushed to ECR and deployed to EC2 Auto Scaling Groups in seconds.
+
+---
+
+## 🛠️ Tech Stack & Tools
+
+- **Cloud Platform**: AWS (VPC, EC2, ASG, ALB, RDS Multi-AZ, Route 53, ACM, ECR, SSM)
+- **Infrastructure as Code**: Terraform
+- **CI/CD & Automation**: GitHub Actions, AWS SSM
+- **Containerization**: Docker, Docker Compose
+- **Backend & Database**: Java 21, Spring Boot, Maven, MySQL
+
+---
+
+## 🔄 CI/CD & Deployment Flow
+
+```text
+[ Developer ] --( Git Push )--> [ GitHub Repository ]
+                                        │
+                                ( GitHub Actions )
+                                        │
+             ┌──────────────────────────┴──────────────────────────┐
+             ▼                                                     ▼
+ 1. Build Jar & Docker Image                              2. Trigger SSM Command
+             │                                                     │
+             ▼                                                     ▼
+     [ Amazon ECR ] <─────────────────────────────────── [ AWS SSM Agent ]
+                                                                   │
+                                                           3. Docker Pull & Restart
+                                                                   │
+                                                                   ▼
+                                                       [ EC2 Private Subnet ]
+```
