@@ -8,7 +8,8 @@
 
 本專案展現了具備安全性、可擴展性與高可用性的生產環境 AWS 雲端架構。系統採用雙可用區 (Multi-AZ) 將應用層隔離於公有與私有子網中，並全面透過 AWS Systems Manager 進行零 SSH Port 暴露的遠端自動化維運。
 
-![AWS 架構圖](./CarRentalService%20AWS%20architecture%20diagram-v3.jpg)
+AWS 架構圖:Car Rental/Diagram/CarRentalService AWS architecture diagram-v4.jpg
+
 
 ### 🌟 架構核心亮點：
 - **高可用性與安全導向**：採用雙可用區 (Multi-AZ) 與公私有子網隔離設計。EC2 應用伺服器與 RDS 資料庫均隱藏於私有子網（Private Subnets），僅能透過 ALB 及 NAT Gateway 對外連線。
